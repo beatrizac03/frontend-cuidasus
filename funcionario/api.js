@@ -1,8 +1,6 @@
-const isProd = location.hostname !== "localhost";
+const isProd = location.hostname === "api-cuida-sus.onrender.com"
 
-const api_url = isProd
-  ? "https://api-cuida-sus.onrender.com"
-  : "http://localhost:8080";
+const api_url = isProd ? "https://api-cuida-sus.onrender.com" : "http://localhost:8080";
 
 // retorna token do usuário autenticado
 export async function logarFuncionario(obj) {
