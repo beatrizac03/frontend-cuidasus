@@ -30,7 +30,7 @@ header {
 }
 
 .container button {
-    width: 350px;
+    /* width: 350px; */
     height: 80px;
     font-size: 23px;
     border-radius: 10px;
@@ -39,6 +39,7 @@ header {
     cursor: pointer;
     color: var(--white);
     transform: .2s ease-in-out;
+    padding: 0 1rem;
 }
 
 .container button:hover {

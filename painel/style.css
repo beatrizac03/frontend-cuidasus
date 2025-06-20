@@ -1,3 +1,5 @@
+@import url('../assets/css/fonts.css');
+
 :root {
     --white: #fff;
     --ice-white: #F8FAFC;
@@ -20,7 +22,7 @@ body {
     box-sizing: border-box;
     overflow-x: hidden;
     width: 100%;
-    font-family: 'Gotham';
+    font-family: 'GothamRoundedMedium' !important;
 }
 
 header {
@@ -153,4 +155,10 @@ p {
     margin-top: 50px;
     color: var(--header-bg);
     font-weight: bold;
+}
+
+.headline {
+    color: var(--header-bg);
+    font-weight: bold;
+    font-size: 1.5rem;
 }

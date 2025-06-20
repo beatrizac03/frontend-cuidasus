@@ -14,7 +14,7 @@ button {
   margin-top: 20px;
 }
 button:hover {
-  background-color: var(--light-yellow);
+  opacity: 0.5;
 }
 .menu {
   display: grid;

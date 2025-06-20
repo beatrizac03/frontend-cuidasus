@@ -1,3 +1,5 @@
+@import url("../../../assets/css/fonts.css");
+
 :root {
   --white: #fff;
   --ice-white: #f8fafc;
@@ -25,7 +27,7 @@ body {
   box-sizing: border-box;
   overflow-x: hidden;
   width: 100%;
-  font-family: "Gotham";
+  font-family: "GothamMedium" !important;
 }
 
 .hidden {
