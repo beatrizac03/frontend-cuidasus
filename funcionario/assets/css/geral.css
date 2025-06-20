@@ -1,0 +1,44 @@
+:root {
+  --white: #fff;
+  --ice-white: #f8fafc;
+  --grey: #d9d9d9;
+  --light-grey: #f5f5f5;
+  --text-color: #333;
+  --header-bg: #2a7ab9;
+  --strong-yellow: #ffd100;
+  --light-yellow: #ffe36b;
+  --black: #1b1b1b;
+  --green: #4fa84f;
+  --primary-green: #00d000;
+  --primary-yellow: #ffcf00;
+  --primary-red: #fe0002;
+  --primary-purple: #283fc0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  box-sizing: border-box;
+  overflow-x: hidden;
+  width: 100%;
+  font-family: "Gotham";
+}
+
+.hidden {
+  display: none !important;
+}
+
+.mr-40 {
+  margin-right: 40px;
+}
+
+.bi-box-arrow-right {
+  font-size: 40px;
+  cursor: pointer;
+  position: absolute;
+  bottom: 50px;
+}

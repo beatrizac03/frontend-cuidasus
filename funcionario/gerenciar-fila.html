@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CUIDA SUS INTERNO - Gerenciar Atendimentos</title>
+    <link rel="stylesheet" href="assets/css/geral.css" />
+    <link rel="stylesheet" href="assets/css/gerenciar-fila.css" />
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Bundle com Popper.js -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      defer
+    ></script>
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+  </head>
+  <body>
+    <aside>
+      <div class="logo"></div>
+      <ul class="menu">
+        <li>
+          <a href="gerenciar-fila.html" class="li-gf">Gerenciar Fila</a>
+        </li>
+        <li>
+          <a href="gerenciar-atendimentos.html" class="li-ga"
+            >Gerenciar Atendimentos</a
+          >
+        </li>
+      </ul>
+
+      <i class="bi bi-box-arrow-right text-danger logout-btn">Sair</i>
+    </aside>
+    <div class="container">
+      <div class="row">
+        <p class="nome-funci">FUNCIONÁRIO:</p>
+        <p class="cargo-funci">CARGO:</p>
+        <p class="tipo-atendimento">TIPO DE ATENDIMENTO:</p>
+      </div>
+      <div class="row"></div>
+
+      <div class="wrapper">
+        <h2>PACIENTES NA FILA:</h2>
+        <ul class="lista-fila"></ul>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        infoFuncionario,
+        buscarFila,
+        listarSalasDisponiveis,
+        chamarPacienteNaSala,
+      } from "./api.js";
+
+      if (window.location.pathname === "/gerenciar-fila.html") {
+        document.querySelector(".li-gf").classList.add("active");
+      } else {
+        document.querySelector(".li-ga").classList.add("active");
+      }
+
+      let info;
+
+      let logout_btn = document.querySelector(".logout-btn");
+
+      logout_btn.addEventListener("click", () => {
+        sessionStorage.removeItem("authToken");
+
+        window.location.href = "index.html";
+      });
+
+      async function renderizarInfo(info) {
+        const nome_funci = document.querySelector(".nome-funci");
+        const cargo_funci = document.querySelector(".cargo-funci");
+        const tipo_atendimento = document.querySelector(".tipo-atendimento");
+
+        nome_funci.innerHTML += ` ${info.nome.toLocaleUpperCase()}`;
+        cargo_funci.innerHTML += ` ${info.cargo}`;
+        tipo_atendimento.innerHTML += ` ${info.tipoAtendimento}`;
+
+        await renderizarFila();
+      }
+
+      async function getInfo() {
+        const authToken = sessionStorage.getItem("authToken");
+
+        try {
+          info = await infoFuncionario(authToken);
+
+          renderizarInfo(info);
+        } catch (e) {
+          console.log("Error: ", e);
+        }
+      }
+
+      async function renderizarFila() {
+        const authToken = sessionStorage.getItem("authToken");
+
+        try {
+          const fila = await buscarFila(info.tipoAtendimento, authToken);
+
+          // Filtra só os que estão com status_atendimento igual a "AGUARDANDO_NA_FILA"
+          const filaAguardando = fila.filter(
+            (atendimento) =>
+              atendimento.statusAtendimento === "AGUARDANDO_NA_FILA"
+          );
+
+          const ul = document.querySelector(".lista-fila");
+
+          ul.innerHTML = "";
+
+          if (filaAguardando.length === 0) {
+            ul.innerHTML = `<li class="sem-pacientes">Nenhum paciente aguardando na fila.</li>`;
+          } else {
+            filaAguardando.forEach((obj) => {
+              ul.innerHTML += `
+                <li>
+                  <span class="nome-paciente">${obj.paciente.nome}</span>
+                  <span>Check-in: ${obj.dataCheckin}</span>
+                  <button id="${obj.id}" class="btn-chamar">CHAMAR</button>
+                </li>
+              `;
+            });
+          }
+          const salas = await listarSalasDisponiveis(
+            authToken,
+            info.tipoAtendimento
+          );
+
+          console.log(salas)
+        } catch (e) {
+          console.log("error: ", e);
+        }
+      }
+
+      getInfo();
+
+      const btn_chamar = document.querySelectorAll(".btn-chamar");
+
+      btn_chamar.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const idAtendimento = btn.id;
+        });
+      });
+
+      let idAtendimentoSelecionado = null;
+
+      const modalChamarPaciente = new bootstrap.Modal(
+        document.getElementById("modalChamarPaciente")
+      );
+
+      const selectSala = document.getElementById("selectSala");
+      const btnConfirmarChamada = document.getElementById(
+        "btnConfirmarChamada"
+      );
+
+      async function abrirModalChamarPaciente(idAtendimento) {
+        idAtendimentoSelecionado = idAtendimento;
+
+        // Limpa opções anteriores
+        selectSala.innerHTML =
+          "<option selected disabled>Selecione a sala</option>";
+
+        const authToken = sessionStorage.getItem("authToken");
+
+        try {
+          // Busca salas disponíveis do tipo de atendimento do funcionário
+          const salas = await listarSalasDisponiveis(
+            authToken,
+            info.tipoAtendimento
+          );
+
+          // Preenche o select com as salas
+          salas.forEach((sala) => {
+            const option = document.createElement("option");
+            option.value = sala.id;
+            option.textContent = sala.nomeSala || sala.nome_sala || sala.nome; // adapte se o nome do campo for diferente
+            selectSala.appendChild(option);
+          });
+
+          // Abre o modal
+          modalChamarPaciente.show();
+        } catch (error) {
+          alert("Erro ao carregar salas: " + error.message);
+        }
+      }
+
+      // Evento para o botão "CHAMAR" na lista
+      document
+        .querySelector(".lista-fila")
+        .addEventListener("click", (event) => {
+          if (event.target.classList.contains("btn-chamar")) {
+            const idAtendimento = event.target.id;
+            abrirModalChamarPaciente(idAtendimento);
+          }
+        });
+
+      // Evento para confirmar a chamada do paciente na sala escolhida
+      btnConfirmarChamada.addEventListener("click", async () => {
+        const idSala = selectSala.value;
+
+        if (!idSala) {
+          alert("Por favor, selecione uma sala.");
+          return;
+        }
+
+        const authToken = sessionStorage.getItem("authToken");
+
+        try {
+          const obj = {
+            idAtendimento: parseInt(idAtendimentoSelecionado, 10),
+            idSala: parseInt(idSala, 10),
+          };
+          console.log(obj);
+          await chamarPacienteNaSala(authToken, obj);
+
+          alert("Paciente chamado com sucesso!");
+
+          modalChamarPaciente.hide();
+
+          // Opcional: Atualizar a lista/fila aqui ou recarregar a página
+          location.reload();
+        } catch (error) {
+          alert("Erro ao chamar paciente: " + error.message);
+        }
+      });
+    </script>
+
+    <!-- Modal para escolher sala -->
+    <div
+      class="modal fade"
+      id="modalChamarPaciente"
+      tabindex="-1"
+      aria-labelledby="modalChamarPacienteLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalChamarPacienteLabel">
+              Escolha a Sala para o Paciente
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Fechar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <select
+              class="form-select"
+              id="selectSala"
+              aria-label="Selecione a sala"
+            >
+              <option selected disabled>Selecione a sala</option>
+              <!-- Opções de sala serão adicionadas aqui via JS -->
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="btnConfirmarChamada"
+            >
+              Chamar Paciente
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

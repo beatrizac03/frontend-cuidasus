@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Bundle com Popper.js -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      defer
+    ></script>
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="./assets/css/menu.css" />
+    <title>Menu</title>
+  </head>
+  <body>
+    <header>
+      <div class="logo"></div>
+    </header>
+
+    <div class="container">
+      <div class="wrapper">
+        <div class="info">
+          <div class="txt">
+            <h2 class="h2"></h2>
+            <h3 class="h3"></h3>
+          </div>
+          <button class="btn-meusatendimentos">MEUS ATENDIMENTOS</button>
+        </div>
+        <p>SELECIONE UMA OPÇÃO ABAIXO PARA ENTRAR NA FILA:</p>
+        <div class="menu">
+          <button class="opcao" value="CONSULTA_MEDICA">CONSULTA MÉDICA</button>
+          <button class="opcao" value="TRIAGEM">TRIAGEM</button>
+          <button class="opcao" value="ODONTOLOGIA">ODONTOLOGIA</button>
+          <button class="opcao" value="ACOMPANHAMENTO_DOENCAS_CRONICAS">
+            ACOMPANHAMENTO DE DOENÇAS CRÔNICAS
+          </button>
+        </div>
+        <button class="btn-encerrar">
+          ENCERRRAR AUTOATENDIMENTO
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Bootstrap -->
+    <div
+      class="modal fade"
+      id="modalAviso"
+      tabindex="-1"
+      aria-labelledby="modalAvisoLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalAvisoLabel">Aviso</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Fechar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            VOCÊ JÁ ESTÁ NUMA FILA DE ATENDIMENTO. AGUARDE SER ATENDIDO OU SAIA
+            DA FILA EM "MEUS ATENDIMENTOS"
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { getInfoPaciente, infoAtendimento } from "./api.js";
+
+      function encerrarAtendimento() {
+        sessionStorage.clear();
+        window.location.href = "login.html";
+      }
+
+      let h2 = document.querySelector(".h2");
+      let h3 = document.querySelector(".h3");
+
+      async function renderizarInfo() {
+        const authToken = sessionStorage.getItem("authToken");
+
+        const dados = await getInfoPaciente(authToken);
+
+        let cpfMask = dados.cpf.replace(/(\d{3})$/, "***");
+
+        h2.innerHTML = `Olá, ${dados.nome}!`;
+        h3.innerHTML = `CPF: ${cpfMask}`;
+      }
+
+      renderizarInfo();
+
+      const botoes = document.querySelectorAll(".opcao");
+
+      botoes.forEach((botao) => {
+        botao.addEventListener("click", async () => {
+          const authToken = sessionStorage.getItem("authToken");
+          const atendimento = await infoAtendimento(authToken);
+
+          if (atendimento) {
+            const modal = new bootstrap.Modal(
+              document.getElementById("modalAviso")
+            );
+            modal.show();
+            return;
+          }
+
+          const tipoAtendimento = botao.value;
+          sessionStorage.setItem("tipoAtendimento", tipoAtendimento);
+          window.location.href = "tipofila.html";
+        });
+      });
+
+      const btn_encerrar = document.querySelector('.btn-encerrar')
+      const btn_meusatendimentos = document.querySelector('.btn-meusatendimentos')
+
+      btn_encerrar.addEventListener('click', () => {
+        encerrarAtendimento()
+      })
+
+      btn_meusatendimentos.addEventListener('click', () => {
+        window.location.href = "meusatendimentos.html"
+      })
+
+    </script>
+  </body>
+</html>

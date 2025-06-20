@@ -1,0 +1,56 @@
+@import url('./geral.css');
+
+body {
+  overflow-x: hidden;
+}
+.container {
+  max-width: 800px;
+  padding-top: 50px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  padding: 2rem 0;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 30px;
+}
+
+.btn-encerrar {
+    background-color: var(--primary-red);
+}
+
+p {
+    text-align: center;
+}
+
+p.posicao, .txt {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+p.aviso {
+    color: var(--primary-red);
+    margin-top: 100px;
+}
+
+.btn-meusatendimentos {
+    margin: 20px 0;
+    margin-bottom: 40px;
+    max-width: 350px;
+    background-color: var(--primary-purple);
+}
+
+@media screen and (max-width: 842px) {
+  .container {
+    padding: 2rem;
+  }
+}

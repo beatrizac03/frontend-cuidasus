@@ -1,0 +1,49 @@
+@import url('./geral.css');
+
+body {
+  overflow-x: hidden;
+}
+.container {
+  max-width: 800px;
+  padding-top: 50px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  padding: 2rem 0;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 30px;
+}
+button[value="cancelar"] {
+  width: 28%;
+}
+button[value="cancelar"], button[value="encerrar"] {
+    background-color: var(--primary-red);
+}
+button[value="confirmar"]{
+    background-color: var(--primary-green);
+    width: 60%;
+}
+
+.txt {
+  font-size: 2rem;
+}
+
+.content {
+  margin-bottom: 300px;
+}
+
+@media screen and (max-width: 960px) {
+    .container {
+      padding: 2rem 2rem;
+    }
+}

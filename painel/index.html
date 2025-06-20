@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Painel Fila - SUS</title>
+  </head>
+  <body>
+    <header>
+      <div class="logo"></div>
+      <p>Painel de Atendimento</p>
+      <p class="date"></p>
+    </header>
+
+    <div class="container">
+      <div class="dropdown">
+        <label for="opcoes">Tipo de atendimento:</label>
+        <select id="opcoes">
+          <option value="CONSULTA_MEDICA">CONSULTA MÉDICA</option>
+          <option value="TRIAGEM">TRIAGEM</option>
+          <option value="ODONTOLOGIA">ODONTOLOGIA</option>
+          <option value="ACOMPANHAMENTO_DOENCAS_CRONICAS">
+            ACOMPANHAMENTO DE DOENÇAS CRÔNICAS
+          </option>
+          <option value="ADMINISTRATIVO">ADMINISTRATIVO</option>
+        </select>
+      </div>
+
+      <div class="details">
+        <div class="item1"></div>
+        <div class="item2">
+          <div class="left">
+            <div class="l-1">
+              <p>SALA / CONSULTÓRIO</p>
+              <p class="sala"></p>
+            </div>
+            <div class="l-2">
+              <p>PRÓXIMOS DA FILA</p>
+              <ul>
+                <li></li>
+              </ul>
+            </div>
+          </div>
+          <div class="right">
+            <p class="titulo">PACIENTE</p>
+            <div class="info">
+              <p class="paciente-nome"></p>
+              <p class="paciente-cpf"></p>
+              <p class="tipoFila"></p>
+              <p class="dataCheckin"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { getFilaIntercalada } from "./api.js";
+
+      function formatarEnumParaTexto(enumString) {
+        return enumString
+          .toLowerCase()
+          .split("_")
+          .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+          .join(" ");
+      }
+
+      const opcoes = document.getElementById("opcoes");
+      const p_tipoAtendimento = document.querySelector(".item1");
+      const p_sala = document.querySelector(".sala");
+      const p_ulFila = document.querySelector(".l-2 ul");
+      const p_pacienteNome = document.querySelector(".paciente-nome");
+      const p_tipoFila = document.querySelector(".tipoFila");
+      const p_pacienteCpf = document.querySelector(".paciente-cpf");
+      const p_dataCheckin = document.querySelector(".dataCheckin");
+
+      async function renderizarFila(tipo_atendimento) {
+        try {
+          p_tipoAtendimento.innerHTML = `<p>${formatarEnumParaTexto(
+            tipo_atendimento
+          )}</p>`;
+
+          const fila = await getFilaIntercalada(tipo_atendimento);
+
+          if (fila.length > 0) {
+            const atendimentoAtual = fila[0];
+
+            p_pacienteNome.innerHTML = `<p>${atendimentoAtual.paciente.nome}</p>`;
+
+            const cpfCompleto = atendimentoAtual.paciente.cpf;
+            const cpfFormatado = "***.***.**" + cpfCompleto.slice(-4);
+            p_pacienteCpf.innerHTML = `<p>CPF: ${cpfFormatado}</p>`;
+
+            p_tipoFila.innerHTML = `<p>FILA ${atendimentoAtual.tipoFila}</p>`;
+            p_dataCheckin.innerHTML = `<p>Data de chegada: ${atendimentoAtual.dataCheckin}</p>`;
+
+            const sala =
+              atendimentoAtual.salaAtendimento?.nomeSala ||
+              "Sala Não atribuída";
+
+            p_sala.innerHTML = `<p>${sala}</p>`;
+
+            p_ulFila.innerHTML = "";
+            for (let i = 1; i < fila.length; i++) {
+              const li = document.createElement("li");
+              const cpfProx = "***.***.**" + fila[i].paciente.cpf.slice(-4);
+              li.innerHTML = `${fila[i].paciente.nome} (CPF: ${cpfProx})<br>Data de chegada: ${fila[i].dataCheckin}<br>FILA ${fila[i].tipoFila}`;
+              p_ulFila.appendChild(li);
+            }
+          } else {
+            p_pacienteNome.innerHTML = "<p>Sem pacientes na fila</p>";
+            p_pacienteCpf.innerHTML = "";
+            p_tipoFila.innerHTML = "";
+            p_dataCheckin.innerHTML = "";
+            p_sala.innerHTML = "";
+            p_ulFila.innerHTML = "";
+          }
+        } catch (error) {
+          console.error("Erro ao carregar a fila:", error);
+          p_pacienteNome.innerHTML = "<p>Erro ao carregar a fila</p>";
+          p_pacienteCpf.innerHTML = "";
+          p_tipoFila.innerHTML = "";
+          p_dataCheckin.innerHTML = "";
+          p_sala.innerHTML = "";
+          p_ulFila.innerHTML = "";
+        }
+      }
+
+      renderizarFila(opcoes.value);
+
+      opcoes.addEventListener("change", () => {
+        renderizarFila(opcoes.value);
+      });
+    </script>
+  </body>
+</html>

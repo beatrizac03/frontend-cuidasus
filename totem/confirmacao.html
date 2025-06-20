@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Bundle com Popper.js -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      defer
+    ></script>
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="./assets/css/confirmacao.css" />
+    <title>Tela de Confirmação</title>
+  </head>
+  <body>
+    <header>
+      <div class="logo"></div>
+    </header>
+    <div class="container">
+      <div class="content">
+        <div class="txt">
+          Tem certeza que deseja entrar na Fila PRIORIDADE para CONSULTA MÉDICA?
+        </div>
+        <button value="cancelar">NÃO</button>
+        <button value="confirmar">SIM</button>
+      </div>
+
+      <button value="encerrar">Encerrar Atendimento</button>
+    </div>
+
+    <script type="module">
+      import { entrarNaFila } from "./api.js";
+
+      function encerrarAtendimento() {
+        sessionStorage.clear();
+
+        window.location.href = "index.html";
+      }
+
+      const txt = document.querySelector(".txt");
+
+      const tipoFila = sessionStorage.getItem("tipoFila");
+      const tipoAtendimento = sessionStorage.getItem("tipoAtendimento");
+
+      if (tipoFila && tipoAtendimento) {
+        const tipoAtendimentoFormato = tipoAtendimento.replace("_", " ");
+
+        txt.innerHTML = `Tem certeza que deseja entrar na Fila ${tipoFila} para ${tipoAtendimentoFormato}?`;
+      } else {
+        txt.innerHTML = "Nenhum atendimento ou tipo de fila selecionado.";
+      }
+
+      async function enviarDados() {
+        const obj = { tipoFila, tipoAtendimento };
+
+        if (tipoFila && tipoAtendimento) {
+          const authToken = sessionStorage.getItem("authToken");
+          await entrarNaFila(authToken, obj); // não precisa de try/catch aqui
+        }
+      }
+
+      const buttons = document.querySelectorAll("button");
+      buttons.forEach((button) => {
+        button.addEventListener("click", async () => {
+          if (button.value === "confirmar") {
+            try {
+              await enviarDados();
+              window.location.href = "detalhesAtendimento.html";
+            } catch (error) {
+              alert(error);
+              console.error("Erro ao criar atendimento:", error);
+            }
+          } else if (button.value === "cancelar") {
+            sessionStorage.removeItem("tipoFila");
+            sessionStorage.removeItem("tipoAtendimento");
+
+            // window.location.href = "menu.html";
+          } else {
+            encerrarAtendimento();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Bundle com Popper.js -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      defer
+    ></script>
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="./assets/css/meusatendimentos.css" />
+    <title>MEUS ATENDIMENTOS</title>
+  </head>
+  <body>
+    <header>
+      <div class="logo"></div>
+    </header>
+
+    <div class="container">
+      <div class="wrapper">
+        <div class="info-paciente">
+          <h2>NOME:</h2>
+          <h2 class="nome-paciente">[NOME DO PACIENTE]</h2>
+          <h2>CPF:</h2>
+          <h2 class="cpf-paciente">[CPF DO PACIENTE]</h2>
+        </div>
+
+        <div class="info-atendimento">
+          <h2 style="color: var(--primary-purple)">MEUS ATENDIMENTOS</h2>
+          <h2 class="nome-atendimento">[NOME DO ATENDIMENTO]</h2>
+          <h2 class="posicao">[POSIÇÃO NA FILA]</h2>
+          <button class="btn-sairdafila">SAIR DA FILA</button>
+
+          <button class="btn-voltar">VOLTAR PARA MENU</button>
+        </div>
+        
+        <button class="btn-encerrar">ENCERRAR AUTOATENDIMENTO</button>
+      </div>
+    </div>
+
+    <!-- Modal de feedback -->
+    <div
+      class="modal fade"
+      id="modalFeedback"
+      tabindex="-1"
+      aria-labelledby="modalFeedbackLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalFeedbackLabel">Mensagem</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Fechar"
+            ></button>
+          </div>
+          <div class="modal-body" id="modalFeedbackBody">
+            <!-- Mensagem será inserida aqui via JS -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        getInfoPaciente,
+        infoAtendimento,
+        posicaoNaFila,
+        sairDaFila,
+      } from "./api.js";
+
+      function encerrarAtendimento() {
+        sessionStorage.clear();
+        window.location.href = "login.html";
+      }
+
+      let h2_nomepaciente = document.querySelector(".nome-paciente");
+      let h2_cpfpaciente = document.querySelector(".cpf-paciente");
+      let h2_nomeatendimento = document.querySelector(".nome-atendimento");
+      let h2_posicaoatendimento = document.querySelector(".posicao");
+
+      async function renderizarInfoPaciente() {
+        const authToken = sessionStorage.getItem("authToken");
+
+        try {
+          const dadosPaciente = await getInfoPaciente(authToken);
+          h2_nomepaciente.innerHTML = dadosPaciente.nome;
+          h2_cpfpaciente.innerHTML = dadosPaciente.cpf;
+        } catch (e) {
+          console.log("Error: ", e);
+          h2_nomepaciente.innerHTML = "Erro ao carregar dados do paciente";
+          h2_cpfpaciente.innerHTML = "Erro ao carregar dados do paciente";
+        }
+      }
+
+      async function renderizarInfoAtendimento() {
+        const authToken = sessionStorage.getItem("authToken");
+
+        try {
+          let dadosAtendimento = await infoAtendimento(authToken);
+          let tipoAtendimento = dadosAtendimento.tipoAtendimento;
+          let posicao = await posicaoNaFila(authToken, tipoAtendimento);
+
+          h2_nomeatendimento.innerHTML =
+            dadosAtendimento.tipoAtendimento.replace("_", " ");
+          h2_posicaoatendimento.innerHTML = `POSIÇÃO NA FILA: #${posicao}`;
+        } catch (e) {
+          console.log("Error: ", e);
+          console.log("Não foi possível carregar dados do atendimento");
+          h2_nomeatendimento.innerHTML = "Você não está em nenhuma fila."
+          h2_posicaoatendimento.innerHTML = ""
+        }
+      }
+
+      renderizarInfoPaciente();
+      renderizarInfoAtendimento();
+
+      const btnsairDaFila = document.querySelector(".btn-sairdafila");
+      const btn_encerrar = document.querySelector(".btn-encerrar");
+
+      btn_encerrar.addEventListener("click", () => {
+        encerrarAtendimento();
+      });
+
+      btnsairDaFila.addEventListener("click", async () => {
+        const authToken = sessionStorage.getItem("authToken");
+        const mensagem = await sairDaFila(authToken);
+
+        const modalBody = document.getElementById("modalFeedbackBody");
+        modalBody.textContent = mensagem;
+
+        const modal = new bootstrap.Modal(
+          document.getElementById("modalFeedback")
+        );
+        modal.show();
+
+        renderizarInfoAtendimento()
+      });
+
+      const btn_voltar = document.querySelector('.btn-voltar')
+
+      btn_voltar.addEventListener('click',() => {
+        window.location.href = "menu.html"
+      })
+    </script>
+  </body>
+</html>
