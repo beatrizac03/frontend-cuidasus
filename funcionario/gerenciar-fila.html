@@ -25,6 +25,50 @@
     />
   </head>
   <body>
+    <button
+      class="btn btn-primary d-none"
+      id="menuToggle"
+      type="button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#offcanvasMenu"
+      aria-controls="offcanvasMenu"
+      style="position: fixed; top: 1rem; left: 1rem; z-index: 1050"
+    >
+      <i class="bi bi-list"></i>
+    </button>
+
+    <div
+      class="offcanvas offcanvas-start"
+      tabindex="-1"
+      id="offcanvasMenu"
+      aria-labelledby="offcanvasMenuLabel"
+    >
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasMenuLabel">Menu</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+          aria-label="Fechar"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="menu list-unstyled">
+          <li>
+            <a href="gerenciar-fila.html" class="li-gf">Gerenciar Fila</a>
+          </li>
+          <li>
+            <a href="gerenciar-atendimentos.html" class="li-ga"
+              >Gerenciar Atendimentos</a
+            >
+          </li>
+          <li>
+            <i class="bi bi-box-arrow-right text-danger logout-btn">Sair</i>
+          </li>
+        </ul>
+      </div>
+    </div>
+
     <aside>
       <div class="logo"></div>
       <ul class="menu">
@@ -62,11 +106,19 @@
         chamarPacienteNaSala,
       } from "./api.js";
 
-      if (window.location.pathname === "/gerenciar-fila.html") {
-        document.querySelector(".li-gf").classList.add("active");
-      } else {
-        document.querySelector(".li-ga").classList.add("active");
-      }
+      document.addEventListener("DOMContentLoaded", () => {
+        const path = window.location.pathname;
+
+        if (path.endsWith("gerenciar-fila.html")) {
+          document
+            .querySelectorAll(".li-gf")
+            .forEach((el) => el.classList.add("active"));
+        } else if (path.endsWith("gerenciar-atendimentos.html")) {
+          document
+            .querySelectorAll(".li-ga")
+            .forEach((el) => el.classList.add("active"));
+        }
+      });
 
       let info;
 
@@ -136,7 +188,7 @@
             info.tipoAtendimento
           );
 
-          console.log(salas)
+          console.log(salas);
         } catch (e) {
           console.log("error: ", e);
         }

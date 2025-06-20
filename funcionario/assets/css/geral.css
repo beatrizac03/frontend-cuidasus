@@ -44,3 +44,83 @@ body {
   position: absolute;
   bottom: 50px;
 }
+
+.btn-finalizar {
+  background-color: var(--strong-yellow) !important;
+  color: var(--black) !important;
+}
+
+@media screen and (max-width: 650px) {
+  .container {
+    width: 100% !important;
+  }
+
+  .btns {
+    width: 100%;
+  }
+
+  .lista-fila li {
+    flex-direction: column !important;
+    align-items: inherit !important;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .btns {
+    flex-direction: column;
+  }
+  .btns a {
+    width: 100%;
+    height: 75px;
+  }
+
+  .container p {
+    font-size: 1.5rem !important;
+  }
+
+  header {
+    height: 27vh !important;
+  }
+
+  .logo {
+    width: 165px !important;
+  }
+
+  .row p {
+    font-size: 1.1rem !important;
+  }
+  .wrapper ul li button {
+    padding: 5px !important;
+  }
+
+  .wrap-btns {
+    gap: 15px !important;
+  }
+}
+
+@media screen and (max-width: 1065px) {
+  aside {
+    display: none;
+  }
+
+  #menuToggle {
+    display: block !important;
+  }
+
+  .container {
+    padding-top: 5rem !important;
+  }
+
+  .offcanvas {
+    background-color: var(--header-bg) !important;
+  }
+
+  .offcanvas-title {
+    position: absolute !important;
+    top: 10% !important;
+  }
+
+  .offcanvas-body {
+    padding-top: 100px !important;
+  }
+}

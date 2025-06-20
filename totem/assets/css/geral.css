@@ -61,3 +61,29 @@ header {
   background-size: contain;
   background-position: center;
 }
+
+@media screen and (max-width: 600px) {
+    .container, .wrapper, #form {
+        width: 100%;
+    }
+
+    .container p {
+        font-size: 1.3rem !important;
+        margin-top: 10px;
+        margin-bottom: 0;
+    }
+
+    .menu .opcao {
+      height: 80px;
+    }
+    .menu {
+      gap: 0px !important;
+      margin-bottom: 10px;
+    }
+}
+
+@media screen and (max-width: 500px) {
+  .container {
+    padding: 2rem 1rem !important;
+  }
+}
