@@ -1,6 +1,6 @@
-let prod = false;
+const isProd = location.hostname !== "localhost";
 
-let api_url = prod
+const api_url = isProd
   ? "https://api-cuida-sus.onrender.com"
   : "http://localhost:8080";
 

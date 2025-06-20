@@ -1,23 +1,28 @@
-const prod = false;
+const isProd = location.hostname !== "localhost";
 
-const api_url = prod ? "https://api-cuida-sus.onrender.com" : "http://localhost:8080";
+const api_url = isProd
+  ? "https://api-cuida-sus.onrender.com"
+  : "http://localhost:8080";
 
 export async function getFilaIntercalada(tipoAtendimento) {
-    const requestInit = {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-        }
-    };
+  const requestInit = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  };
 
-    const response = await fetch(`${api_url}/fila/${tipoAtendimento}`, requestInit);
-    
-    if (!response.ok) {
-        throw new Error(`Error fetching fila intercalada: ${response.statusText}`);
-    }
+  const response = await fetch(
+    `${api_url}/fila/${tipoAtendimento}`,
+    requestInit
+  );
 
-    const dados = await response.json();
+  if (!response.ok) {
+    throw new Error(`Error fetching fila intercalada: ${response.statusText}`);
+  }
 
-    return dados;
+  const dados = await response.json();
+
+  return dados;
 }
