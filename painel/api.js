@@ -1,6 +1,6 @@
-const isProd = location.hostname === "api-cuida-sus.onrender.com"
+const isFrontProd = window.location.hostname === "beatrizac03.github.io"
 
-const api_url = isProd ? "https://api-cuida-sus.onrender.com" : "http://localhost:8080";
+const api_url = isFrontProd ? "https://api-cuida-sus.onrender.com" : "http://localhost:8080";
 
 export async function getFilaIntercalada(tipoAtendimento) {
   const requestInit = {
