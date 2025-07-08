@@ -24,3 +24,4 @@ export async function getFilaIntercalada(tipoAtendimento) {
 
   return dados;
 }
+

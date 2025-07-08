@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
     <title>Painel Fila - SUS</title>
   </head>
@@ -12,6 +16,13 @@
       <p>Painel de Atendimento</p>
       <p class="date"></p>
     </header>
+
+    <div id="loading" class="d-none text-center p-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="mt-3">Carregando...</p>
+    </div>
 
     <div class="container">
       <div class="dropdown">
@@ -58,6 +69,16 @@
     <script type="module">
       import { getFilaIntercalada } from "./api.js";
 
+      function loadingSpinner() {
+        return `
+      <div class="d-flex justify-content-center align-items-center mt-2">
+        <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+      </div>
+    `;
+      }
+
       function formatarEnumParaTexto(enumString) {
         return enumString
           .toLowerCase()
@@ -70,12 +91,21 @@
       const p_tipoAtendimento = document.querySelector(".item1");
       const p_sala = document.querySelector(".sala");
       const p_ulFila = document.querySelector(".l-2 ul");
+
       const p_pacienteNome = document.querySelector(".paciente-nome");
-      const p_tipoFila = document.querySelector(".tipoFila");
       const p_pacienteCpf = document.querySelector(".paciente-cpf");
+      const p_tipoFila = document.querySelector(".tipoFila");
       const p_dataCheckin = document.querySelector(".dataCheckin");
 
       async function renderizarFila(tipo_atendimento) {
+        // Mostra spinner em cada campo individual (sem apagar a estrutura .info)
+        p_sala.innerHTML = loadingSpinner();
+        p_ulFila.innerHTML = loadingSpinner();
+        p_pacienteNome.innerHTML = loadingSpinner();
+        p_pacienteCpf.innerHTML = "";
+        p_tipoFila.innerHTML = "";
+        p_dataCheckin.innerHTML = "";
+
         try {
           p_tipoAtendimento.innerHTML = `<p>${formatarEnumParaTexto(
             tipo_atendimento
@@ -86,35 +116,43 @@
           if (fila.length > 0) {
             const atendimentoAtual = fila[0];
 
-            p_pacienteNome.innerHTML = `<p>${atendimentoAtual.paciente.nome}</p>`;
-
+            const nome = atendimentoAtual.paciente.nome;
             const cpfCompleto = atendimentoAtual.paciente.cpf;
             const cpfFormatado = "***.***.**" + cpfCompleto.slice(-4);
-            p_pacienteCpf.innerHTML = `<p>CPF: ${cpfFormatado}</p>`;
-
-            p_tipoFila.innerHTML = `<p>FILA ${atendimentoAtual.tipoFila}</p>`;
-            p_dataCheckin.innerHTML = `<p>Data de chegada: ${atendimentoAtual.dataCheckin}</p>`;
-
+            const tipoFila = atendimentoAtual.tipoFila;
+            const dataCheckin = atendimentoAtual.dataCheckin;
             const sala =
               atendimentoAtual.salaAtendimento?.nomeSala ||
               "Sala Não atribuída";
 
+            // Atualiza os campos individuais
+            p_pacienteNome.innerHTML = `<p>${nome}</p>`;
+            p_pacienteCpf.innerHTML = `<p>CPF: ${cpfFormatado}</p>`;
+            p_tipoFila.innerHTML = `<p>FILA ${tipoFila}</p>`;
+            p_dataCheckin.innerHTML = `<p>Data de chegada: ${dataCheckin}</p>`;
             p_sala.innerHTML = `<p>${sala}</p>`;
 
+            // Lista dos próximos da fila
             p_ulFila.innerHTML = "";
             for (let i = 1; i < fila.length; i++) {
+              const prox = fila[i];
+              const proxCpf = "***.***.**" + prox.paciente.cpf.slice(-4);
               const li = document.createElement("li");
-              const cpfProx = "***.***.**" + fila[i].paciente.cpf.slice(-4);
-              li.innerHTML = `${fila[i].paciente.nome} (CPF: ${cpfProx})<br>Data de chegada: ${fila[i].dataCheckin}<br>FILA ${fila[i].tipoFila}`;
+              li.innerHTML = `
+            ${prox.paciente.nome} (CPF: ${proxCpf})<br>
+            Data de chegada: ${prox.dataCheckin}<br>
+            FILA ${prox.tipoFila}
+          `;
               p_ulFila.appendChild(li);
             }
           } else {
+            // Nenhum paciente na fila
             p_pacienteNome.innerHTML = "<p>Sem pacientes na fila</p>";
             p_pacienteCpf.innerHTML = "";
             p_tipoFila.innerHTML = "";
             p_dataCheckin.innerHTML = "";
-            p_sala.innerHTML = "";
-            p_ulFila.innerHTML = "";
+            p_sala.innerHTML = "<p>-</p>";
+            p_ulFila.innerHTML = "<li>Ninguém na fila</li>";
           }
         } catch (error) {
           console.error("Erro ao carregar a fila:", error);
@@ -122,8 +160,8 @@
           p_pacienteCpf.innerHTML = "";
           p_tipoFila.innerHTML = "";
           p_dataCheckin.innerHTML = "";
-          p_sala.innerHTML = "";
-          p_ulFila.innerHTML = "";
+          p_sala.innerHTML = "<p>Erro</p>";
+          p_ulFila.innerHTML = "<li>Erro ao carregar</li>";
         }
       }
 
