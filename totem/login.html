@@ -83,12 +83,10 @@
           sessionStorage.setItem("authToken", authToken); // armazenar o JWT no sessionStorage
           console.log("Token armazenado:", authToken);
 
-          setTimeout(()=> {
-            window.location.href = "menu.html";
-          }, 1500)
-
+          window.location.href = "menu.html";
         } catch (e) {
           console.log("Error: ", e);
+          alert('Erro ao fazer login. Verifique os dados informados.');
         }
       }
 
